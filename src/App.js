@@ -1,23 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import AddUser from "./AddUser";
+import "./App.css";
+import User from "./User";
 
 function App() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+  const fetchUsers = async () => {
+    const result = await axios("https://jsonplaceholder.typicode.com/users");
+    setUsers(result.data);
+  };
+
+  const handleSubmit = async (name) => {
+    await axios
+      .post("https://jsonplaceholder.typicode.com/users", name)
+      .then((response) => setUsers([...users, { id: Date.now(), name: name }]));
+  };
+
+  const deleteHandler = (id) => {
+    const filteredUsers = users.filter((user) => user.id !== id);
+    setUsers(filteredUsers);
+  };
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>React Crud App</h1>
+      <AddUser handleSubmit={handleSubmit} />
+      <User users={users} deleteHandler={deleteHandler} />
     </div>
   );
 }
